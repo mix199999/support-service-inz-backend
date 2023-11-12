@@ -15,5 +15,5 @@ public class UserDto {
     private int id;
     private String login;
     private String token;
-    private int roleId;
+    private String ROLE;
 }

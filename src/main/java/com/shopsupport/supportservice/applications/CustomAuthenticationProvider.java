@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -44,7 +45,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 user.getAuthorities() // Assuming user.getRoles() returns a list of role strings
         );
 
-
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // If authentication is successful, create a new Authentication object with the user's authorities
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }
@@ -56,9 +57,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     }
 
     public boolean isPasswordValid(User user, String rawPassword) {
-        // Implement your password validation logic, e.g., comparing a hashed password
-        // You may use a password encoder for secure password validation
-        // Here's a simple example:
+
         String hashedPassword = user.getPassword(); // Retrieve the hashed password from the user entity
         return BCrypt.checkpw(rawPassword, hashedPassword); // Use a password hashing library (e.g., BCrypt) for secure password comparison
     }

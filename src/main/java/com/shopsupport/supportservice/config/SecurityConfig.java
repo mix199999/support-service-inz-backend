@@ -63,11 +63,21 @@ import com.shopsupport.supportservice.applications.CustomAuthenticationProvider;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc
 public class SecurityConfig {
+
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
 
     @Bean
     public JdbcUserDetailsManager jdbcUserDetailsManager() {
@@ -89,25 +99,36 @@ public class SecurityConfig {
 
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/loginForm").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/messages").authenticated()
+
+
+
 
                 )
+                .sessionManagement(session -> session
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-                .csrf(AbstractHttpConfigurer::disable);
+                )
+                .addFilterBefore(new JwtRequestFilter(jwtTokenService), BasicAuthenticationFilter.class);
+
+
         return http.build();
     }
 
-    @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
+        configuration.setMaxAge(3600L);
+        configuration.setAllowCredentials(false);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -115,4 +136,9 @@ public class SecurityConfig {
 
 
 
+
+
 }
+
+
+

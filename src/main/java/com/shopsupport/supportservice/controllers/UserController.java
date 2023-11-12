@@ -4,57 +4,74 @@ package com.shopsupport.supportservice.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopsupport.supportservice.applications.CustomAuthenticationProvider;
+import com.shopsupport.supportservice.applications.CustomUserDetails;
+import com.shopsupport.supportservice.config.JwtTokenService;
+import com.shopsupport.supportservice.dto.UserDto;
 import com.shopsupport.supportservice.entities.User;
 import com.shopsupport.supportservice.repositories.*;
 
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import static javax.crypto.Cipher.SECRET_KEY;
+@RequiredArgsConstructor
 @RestController
 public class UserController {
 
     @Autowired
     UserRepository userRepository;
 
-//    @GetMapping("/")
-//    String test()
-//    {
-//        return "Page /";
-//    }
-//
-//    @GetMapping("/users")
-//    List<User> getAll()
-//    {
-//        return userRepository.findAll();
-//    }
-//
-//    @GetMapping("/user/dashboard")
-//
-//    public String userDashboard() {
-//        // Handle user dashboard
-//        return "user_dashboard";
-//    }
-//
-//    @GetMapping("/admin/dashboard")
-//
-//    public String adminDashboard() {
-//        // Handle admin dashboard
-//        return "admin_dashboard";
-//    }
-//
-//
-    @PostMapping("/loginForm")
-   @CrossOrigin("http://localhost:3000")
+    @Autowired
+    private JwtTokenService jwtTokenService; // Dodaj to pole
+
+    @Autowired
+    private CustomAuthenticationProvider customAuthenticationProvider;
+
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard() {
+        // Handle admin dashboard
+        return "admin_dashboard";
+    }
+
+
+
+    @PostMapping("/test-request")
+    public ResponseEntity<String> testPostRequest() {
+        return ResponseEntity.ok("POST request successful");
+    }
+
+
+    @GetMapping("/userInfo")
+    public ResponseEntity<String> getUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            // Access user details such as username, authorities, etc.
+            return new ResponseEntity<>("User Info: " + userDetails.getUsername(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
         // Pobierz dane użytkownika z bazy danych na podstawie jego nazwy użytkownika
-        User userFromDatabase = userRepository.findByUsername(user.getUsername());
-        CustomAuthenticationProvider customAuthenticationProvider = new CustomAuthenticationProvider();
+        User userFromDatabase = userRepository.findByUsername(user.getLogin());
+
 
         if (userFromDatabase == null) {
             // Użytkownik o podanej nazwie nie istnieje
@@ -67,27 +84,41 @@ public class UserController {
             return new ResponseEntity<>("Niepoprawne hasło", HttpStatus.UNAUTHORIZED);
         }
 
-        // Przekształć dane użytkownika na format JSON
+        // Utwórz UserDetails
+        UserDetails userDetails = new CustomUserDetails(
+                userFromDatabase.getUsername(),
+                userFromDatabase.getPassword(),
+                userFromDatabase.getAuthorities()
+        );
+
+        // Wygeneruj token JWT
+        String token = jwtTokenService.generateToken(userDetails);
+
+        UserDto userDto = new UserDto();
+        userDto.setLogin(userFromDatabase.getUsername());
+        userDto.setROLE(userFromDatabase.getRole());
+        userDto.setToken(token);
+
+
         ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = null;
         try {
-            String userJson = objectMapper.writeValueAsString(userFromDatabase);
-            return new ResponseEntity<>(userJson, HttpStatus.OK);
+            userJson = objectMapper.writeValueAsString(userDto);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("Błąd przetwarzania danych", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
         }
+
+        return new ResponseEntity<>(userJson, HttpStatus.OK);
+
+
+
+
     }
 
 
     @GetMapping("/messages")
-    public ResponseEntity<List<String>> messages(){
+    public ResponseEntity<List<String>> messages() {
         return ResponseEntity.ok(Arrays.asList("first", "second"));
-    }
-
-
-    @PostMapping("/test-request")
-    public ResponseEntity<String> testPostRequest() {
-        return ResponseEntity.ok("POST request successful");
     }
 
 
