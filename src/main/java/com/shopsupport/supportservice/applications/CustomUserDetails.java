@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 public class CustomUserDetails extends org.springframework.security.core.userdetails.User {
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
+    public CustomUserDetails(int id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        super( username, password, authorities);
     }
 
     // Add a constructor that accepts a list of role strings and converts them to GrantedAuthority objects
-    public CustomUserDetails(String username, String password, List<String> roles) {
+    public CustomUserDetails(int id, String username, String password, List<String> roles) {
         super(username, password, rolesToAuthorities(roles));
     }
 

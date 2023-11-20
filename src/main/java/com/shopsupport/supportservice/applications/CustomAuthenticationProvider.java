@@ -40,6 +40,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         // Create a UserDetails object based on your custom User entity
         UserDetails userDetails = new CustomUserDetails(
+                user.getUserId(),
                 user.getUsername(),
                 user.getPassword(),
                 user.getAuthorities() // Assuming user.getRoles() returns a list of role strings

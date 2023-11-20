@@ -41,6 +41,7 @@ public class JwtTokenService {
         User user = userRepository.findByUsername(username);
 
         return  new CustomUserDetails(
+                user.getUserId(),
                 user.getUsername(),
                 user.getPassword(),
                 user.getAuthorities()

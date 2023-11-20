@@ -17,8 +17,6 @@ public class User {
     @Column(name = "USERNAME")
     private String username;
 
-    private String login;
-
     @Column(name = "PASSWORD")
     private String password;
 
@@ -33,7 +31,6 @@ public class User {
         else if(roleId == 2) return "USER";
         else return null;
     }
-
 
 
 

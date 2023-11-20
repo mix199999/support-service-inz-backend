@@ -70,7 +70,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
         // Pobierz dane użytkownika z bazy danych na podstawie jego nazwy użytkownika
-        User userFromDatabase = userRepository.findByUsername(user.getLogin());
+        User userFromDatabase = userRepository.findByUsername(user.getUsername());
 
 
         if (userFromDatabase == null) {
@@ -86,6 +86,7 @@ public class UserController {
 
         // Utwórz UserDetails
         UserDetails userDetails = new CustomUserDetails(
+                userFromDatabase.getUserId(),
                 userFromDatabase.getUsername(),
                 userFromDatabase.getPassword(),
                 userFromDatabase.getAuthorities()
@@ -97,6 +98,7 @@ public class UserController {
         UserDto userDto = new UserDto();
         userDto.setLogin(userFromDatabase.getUsername());
         userDto.setROLE(userFromDatabase.getRole());
+        userDto.setId(userFromDatabase.getUserId());
         userDto.setToken(token);
 
 
@@ -116,10 +118,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/messages")
-    public ResponseEntity<List<String>> messages() {
-        return ResponseEntity.ok(Arrays.asList("first", "second"));
-    }
+
 
 
 

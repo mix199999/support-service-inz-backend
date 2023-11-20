@@ -3,8 +3,9 @@ import static org.mockito.ArgumentMatchers.matches;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.*;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -105,6 +106,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/messages").authenticated()
+                        .requestMatchers("/option-users","/option-users-delete", "/option-faq-show-all",
+                                "/option-products", "/delete-faq/","/submit-faq", "/tickets",
+                                "/get-all-tickets" , "/messages-ticket", "/get-all-orders"
+                        ,"/orders/get-user-orders", "/order-details/all", "/order-details/by-order-id/",
+                                "/ticket/add", "/message/add", "/tickets/not-handled", "/tickets/**").permitAll()
 
 
 
@@ -124,7 +130,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
         configuration.setMaxAge(3600L);
