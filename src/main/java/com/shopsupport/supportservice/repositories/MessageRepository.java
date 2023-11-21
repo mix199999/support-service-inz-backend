@@ -42,4 +42,10 @@ public class MessageRepository  {
         return jdbcTemplate.query(query, new Object[]{userId}, new BeanPropertyRowMapper<>(MessageDTO.class));
     }
 
+
+    public List<MessageDTO> getMessagesByTicketIdOrderByDate(int ticketId) {
+        String query = "SELECT * FROM MESSAGES WHERE TICKET_ID = ? ORDER BY MESSAGE_DATE";
+        return jdbcTemplate.query(query, new Object[]{ticketId}, new BeanPropertyRowMapper<>(MessageDTO.class));
+    }
+
 }

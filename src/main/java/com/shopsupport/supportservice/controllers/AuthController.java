@@ -245,9 +245,51 @@ private MessageRepository messageRepository;
     @GetMapping("/tickets/not-handled")
     public ResponseEntity<List<TicketDTO>> getTicketsWithStatusZero() {
 
-        return ResponseEntity.ok(ticketRepository.findTicketsByStatus(0));
+        return ResponseEntity.ok(ticketRepository.findTicketsByHandlerId(0));
+    }
+
+    @PostMapping("/ticket/update/status")
+    public ResponseEntity<String> updateTicketStatus(@RequestParam("ticketId") int ticketId, @RequestParam("newStatus") boolean newStatus) {
+        try {
+            int rowsAffected = ticketRepository.updateStatus(ticketId, newStatus);
+            if (rowsAffected > 0) {
+                return new ResponseEntity<>("Ticket status updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Ticket not found or status not updated", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating ticket status", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/ticket/update/handler")
+    public ResponseEntity<String> updateTicketHandler(@RequestBody Map<String, Integer> payload) {
+        int ticketId = payload.get("ticketId");
+        int newHandlerId = payload.get("newHandlerId");
+        System.out.println("Received Payload: " + payload);
+        try {
+            int rowsAffected = ticketRepository.updateHandlerId(ticketId, newHandlerId);
+            if (rowsAffected > 0) {
+                return new ResponseEntity<>("Ticket handler updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Ticket not found or handler not updated", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating ticket handler", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
+    @GetMapping("/messages-by-ticket/{ticketId}")
+    public ResponseEntity<List<MessageDTO>> getMessagesByTicketIdOrderByDate(@PathVariable int ticketId) {
+        try {
+            List<MessageDTO> messages = messageRepository.getMessagesByTicketIdOrderByDate(ticketId);
+            return new ResponseEntity<>(messages, HttpStatus.OK);
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

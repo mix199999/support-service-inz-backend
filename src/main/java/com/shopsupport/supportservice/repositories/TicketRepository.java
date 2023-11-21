@@ -64,5 +64,17 @@ public class TicketRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TicketDTO.class), status);
     }
 
+
+
+    public int updateHandlerId(int ticketId, int newHandlerId) {
+        String sql = "UPDATE TICKETS SET HANDLER_ID = ? WHERE TICKET_ID = ?";
+        return jdbcTemplate.update(sql, newHandlerId, ticketId);
+    }
+
+    public int updateStatus(int ticketId, boolean newStatus) {
+        String sql = "UPDATE TICKETS SET STATUS = ? WHERE TICKET_ID = ?";
+        return jdbcTemplate.update(sql, newStatus, ticketId);
+    }
+
 }
 

@@ -110,7 +110,8 @@ public class SecurityConfig {
                                 "/option-products", "/delete-faq/","/submit-faq", "/tickets",
                                 "/get-all-tickets" , "/messages-ticket", "/get-all-orders"
                         ,"/orders/get-user-orders", "/order-details/all", "/order-details/by-order-id/",
-                                "/ticket/add", "/message/add", "/tickets/not-handled", "/tickets/**").permitAll()
+                                "/ticket/add", "/message/add", "/tickets/not-handled", "/tickets/**","/ticket/update/**",
+                                "/ticket/update/handler").permitAll()
 
 
 
