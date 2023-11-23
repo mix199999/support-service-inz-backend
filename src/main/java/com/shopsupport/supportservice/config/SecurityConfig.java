@@ -97,7 +97,6 @@ public class SecurityConfig {
         return new ProviderManager(Collections.singletonList(customAuthenticationProvider()));
     }
     @Bean
-
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -111,7 +110,9 @@ public class SecurityConfig {
                                 "/get-all-tickets" , "/messages-ticket", "/get-all-orders"
                         ,"/orders/get-user-orders", "/order-details/all", "/order-details/by-order-id/",
                                 "/ticket/add", "/message/add", "/tickets/not-handled", "/tickets/**","/ticket/update/**",
-                                "/ticket/update/handler").permitAll()
+                                "/ticket/update/handler","/messages-by-ticket/**").permitAll()
+                        .requestMatchers("/ws/**", "/chat/**", "/topic/**", "/app/**").permitAll()
+
 
 
 
@@ -127,7 +128,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-   @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
@@ -135,11 +136,16 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
         configuration.setMaxAge(3600L);
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
+
+        // Apply CORS configuration to regular HTTP endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
+
         return source;
     }
+
 
 
 

@@ -32,9 +32,10 @@ public class TicketRepository {
     }
 
     public List<TicketDTO> findTicketsByHandlerId(int handlerId) {
-        String sql = "SELECT TICKET_ID AS idTicket, TICKET_TITLE AS titleTicket, USER_ID, ORDER_ID, HANDLER_ID, STATUS FROM TICKETS WHERE HANDLER_ID = ?";
+        String sql = "SELECT TICKET_ID AS idTicket, TICKET_TITLE AS titleTicket, USER_ID, ORDER_ID, HANDLER_ID, STATUS FROM TICKETS WHERE HANDLER_ID = ? AND STATUS <> 1";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(TicketDTO.class), handlerId);
     }
+
 
 
 
@@ -75,6 +76,12 @@ public class TicketRepository {
         String sql = "UPDATE TICKETS SET STATUS = ? WHERE TICKET_ID = ?";
         return jdbcTemplate.update(sql, newStatus, ticketId);
     }
+
+    public int updateTicketStatusToTrue(int ticketId) {
+        String sql = "UPDATE TICKETS SET STATUS = true WHERE TICKET_ID = ?";
+        return jdbcTemplate.update(sql, ticketId);
+    }
+
 
 }
 

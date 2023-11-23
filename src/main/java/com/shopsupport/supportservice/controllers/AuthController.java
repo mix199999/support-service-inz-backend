@@ -44,18 +44,18 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/messages-ticket")
-    public ResponseEntity<List<MessageDTO>> getAllMessages() {
-        try {
-            List<MessageDTO> tickets = messageRepository.getAll();
-
-            return new ResponseEntity<>(tickets, HttpStatus.OK);
-        } catch (Exception e) {
-            // Log the exception for debugging purposes
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/messages-ticket")
+//    public ResponseEntity<List<MessageDTO>> getAllMessages() {
+//        try {
+//            List<MessageDTO> tickets = messageRepository.getAll();
+//
+//            return new ResponseEntity<>(tickets, HttpStatus.OK);
+//        } catch (Exception e) {
+//            // Log the exception for debugging purposes
+//            e.printStackTrace();
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 
 @Autowired
@@ -230,7 +230,7 @@ private MessageRepository messageRepository;
 
 
     @PostMapping("/message/add")
-    public ResponseEntity<String> addMessage(@RequestBody Message message) {
+    public ResponseEntity<String> addMessage(@RequestBody MessageDTO message) {
         messageRepository.addMessage(message);
         return ResponseEntity.ok("Message added successfully");
     }
@@ -280,16 +280,31 @@ private MessageRepository messageRepository;
     }
 
 
-    @GetMapping("/messages-by-ticket/{ticketId}")
-    public ResponseEntity<List<MessageDTO>> getMessagesByTicketIdOrderByDate(@PathVariable int ticketId) {
+//    @GetMapping("/messages-by-ticket/{ticketId}")
+//    public ResponseEntity<List<MessageDTO>> getMessagesByTicketIdOrderByDate(@PathVariable int ticketId) {
+//        try {
+//            List<MessageDTO> messages = messageRepository.getMessagesByTicketIdOrderByDate(ticketId);
+//            return new ResponseEntity<>(messages, HttpStatus.OK);
+//        } catch (Exception e) {
+//            // Log the exception for debugging purposes
+//            e.printStackTrace();
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+
+    @PostMapping("/ticket/update/status-to-true/{ticketId}")
+    public ResponseEntity<String> updateTicketStatusToTrue(@PathVariable int ticketId) {
         try {
-            List<MessageDTO> messages = messageRepository.getMessagesByTicketIdOrderByDate(ticketId);
-            return new ResponseEntity<>(messages, HttpStatus.OK);
+            int rowsAffected = ticketRepository.updateTicketStatusToTrue(ticketId);
+            if (rowsAffected > 0) {
+                return new ResponseEntity<>("Ticket status updated to true successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Ticket not found or status not updated", HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
-            // Log the exception for debugging purposes
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error updating ticket status", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 }

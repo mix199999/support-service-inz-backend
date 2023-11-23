@@ -15,8 +15,12 @@ import java.util.List;
 @Repository
 public class MessageRepository  {
 
+    private final JdbcTemplate jdbcTemplate;
+
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    public MessageRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
 
     public List<MessageDTO> getAll(){
@@ -24,7 +28,7 @@ public class MessageRepository  {
         return jdbcTemplate.query(query, new BeanPropertyRowMapper<>(MessageDTO.class));
     }
 
-    public void addMessage(Message message) {
+    public void addMessage(MessageDTO message) {
         String sql = "INSERT INTO MESSAGES (TICKET_ID, MESSAGE, SENDER_ID, MESSAGE_DATE) VALUES (?, ?, ?, ?)";
 
         jdbcTemplate.update(connection -> {
@@ -47,5 +51,7 @@ public class MessageRepository  {
         String query = "SELECT * FROM MESSAGES WHERE TICKET_ID = ? ORDER BY MESSAGE_DATE";
         return jdbcTemplate.query(query, new Object[]{ticketId}, new BeanPropertyRowMapper<>(MessageDTO.class));
     }
+
+
 
 }
